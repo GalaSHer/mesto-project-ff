@@ -1,17 +1,27 @@
-import { openPopupImg } from "./modal.js";
-
 // создание карточки
 
-export function createCard (card, deleteCard, cardLike, openPopupImg){
-  const cardTemplate = document.querySelector('#card-template').content;
-  const cardElement = cardTemplate.querySelector('.card').cloneNode(true);
-  cardElement.querySelector('.card__image').src = card.link;
-  cardElement.querySelector('.card__image').alt = card.name;
-  cardElement.querySelector('.card__title').textContent = card.name;
+const cardTemplate = document.querySelector('#card-template').content;
+
+export function cloneTemplate(card){
+  const cardForm = cardTemplate.querySelector('.card').cloneNode(true);
+  const cardImg = cardForm.querySelector('.card__image');
+  const cardTitle = cardForm.querySelector('.card__title');
   
+  cardImg.src = card.link;
+  cardImg.alt = card.name;
+  cardTitle.textContent = card.name;
+  return cardForm;
+};
+
+export function createCard (card, cloneTemplate, deleteCard, likeCard, openPopupImg){
+  const cardElement = cloneTemplate(card);
   const deleteButton = cardElement.querySelector('.card__delete-button');
-  deleteButton.addEventListener('click', deleteCard);
+  const likeButton = cardElement.querySelector('.card__like-button');
+  const cardImg = cardElement.querySelector('.card__image');
   
+  deleteButton.addEventListener('click', deleteCard);
+  likeButton.addEventListener('click', likeCard);
+  cardImg.addEventListener('click', openPopupImg);
   return cardElement;
 };
 
@@ -23,9 +33,7 @@ export function deleteCard(evt){
 };
 
 //лайк карточки
-
-export function cardLike(evt){
-  if(evt.target.classList.contains('card__like-button')) {
-  evt.target.classList.toggle('card__like-button_is-active');
-  };
+export function likeCard(evt){
+  const likeButtonActive = evt.target;
+  likeButtonActive.classList.toggle('card__like-button_is-active');
 };
