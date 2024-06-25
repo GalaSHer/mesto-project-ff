@@ -1,9 +1,12 @@
 import '../pages/index.css';
-import {initialCards} from './cards.js';
 import {cloneTemplate, createCard, deleteCard, likeCard} from './card.js';
 import { openPopup, closePopup } from './modal.js';
+import { validationConfig, enableValidation, clearValidation} from './validation.js';
+import { getUserInfo, getInitialCards } from './api.js';
 
 // переменные 
+let userId = null;
+let profileImage = document.querySelector('.profile__image');
 const cardsContainer = document.querySelector('.places__list');
 const personName = document.querySelector('.profile__title');
 const personDescription = document.querySelector('.profile__description');
@@ -24,6 +27,7 @@ const popupImg = document.querySelector('.popup_type_image');
 const image = popupImg.querySelector('.popup__image');
 const imageCaption = popupImg.querySelector('.popup__caption');
 
+
 //слушатели событий 
 
 editButton.addEventListener('click', handleEditForm);
@@ -31,23 +35,34 @@ newCardButton.addEventListener('click', openPopupNewCard);
 popupEditForm.addEventListener('submit', handleEditFormSubmit);
 popupNewCard.addEventListener('submit', handleFormNewCard);
 
-// отображение начальных карточек на странице
+// отображение начальных данных на странице
 
-initialCards.forEach((card) => {
-  const cardElement = createCard(card, cloneTemplate, deleteCard, likeCard, openPopupImg);
-  cardsContainer.append(cardElement);
-});
+enableValidation(validationConfig);
+
+Promise.all([getUserInfo(), getInitialCards()])
+  .then(([userData, initialCards]) => {
+    userId = userData._id;
+    personName.textContent = userData.name;
+    personDescription.textContent = userData.about;
+    profileImage.style.backgroundImage = `url(${userData.avatar})`;
+      
+    initialCards.forEach((card) => {
+     const cardElement = createCard(card, cloneTemplate, deleteCard, likeCard, openPopupImg);
+     cardsContainer.append(cardElement);
+    });
+  })
 
 //редактирование профиля
 
 function handleEditForm() {
   nameInput.value = personName.textContent;
   jobInput.value = personDescription.textContent;
+  clearValidation(popupEditForm, validationConfig);
   openPopup(popupEdit);
 };
 
 function handleEditFormSubmit(evt) {
-  evt.preventDefault(); 
+  evt.preventDefault();
   personName.textContent = nameInput.value;
   personDescription.textContent = jobInput.value;
   closePopup(popupEdit);
@@ -56,6 +71,8 @@ function handleEditFormSubmit(evt) {
 //добавление карточки
 
  function openPopupNewCard() {
+  clearValidation(newCardForm, validationConfig);
+  newCardForm.reset();
   openPopup(popupNewCard);
 };
 

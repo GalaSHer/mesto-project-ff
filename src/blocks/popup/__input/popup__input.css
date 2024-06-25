@@ -20,3 +20,17 @@
     line-height: 15px;
   }
 }
+
+.popup__error_visible {
+  font-family: Inter;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.52px;
+  text-align: left;
+  color: rgba(255, 0, 0, 1);
+}
+
+.popup__input_type_error {
+  border-bottom-color: rgba(255, 0, 0, 1);
+}
+
