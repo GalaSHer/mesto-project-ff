@@ -1,8 +1,8 @@
 import '../pages/index.css';
-import {cloneTemplate, createCard, deleteCard, likeCard} from './card.js';
+import {cloneTemplate, createCard, likeCard, countLikes } from './card.js';
 import { openPopup, closePopup } from './modal.js';
 import { validationConfig, enableValidation, clearValidation} from './validation.js';
-import { getUserInfo, getInitialCards } from './api.js';
+import { getUserInfo, getInitialCards, pushUserInfo, pushNewCard, deleteCardData } from './api.js';
 
 // переменные 
 let userId = null;
@@ -27,7 +27,6 @@ const popupImg = document.querySelector('.popup_type_image');
 const image = popupImg.querySelector('.popup__image');
 const imageCaption = popupImg.querySelector('.popup__caption');
 
-
 //слушатели событий 
 
 editButton.addEventListener('click', handleEditForm);
@@ -47,7 +46,7 @@ Promise.all([getUserInfo(), getInitialCards()])
     profileImage.style.backgroundImage = `url(${userData.avatar})`;
       
     initialCards.forEach((card) => {
-     const cardElement = createCard(card, cloneTemplate, deleteCard, likeCard, openPopupImg);
+     const cardElement = createCard(card, userId, cloneTemplate, deleteCard, likeCard, openPopupImg, countLikes);
      cardsContainer.append(cardElement);
     });
   })
@@ -66,6 +65,7 @@ function handleEditFormSubmit(evt) {
   personName.textContent = nameInput.value;
   personDescription.textContent = jobInput.value;
   closePopup(popupEdit);
+  pushUserInfo();
 };
 
 //добавление карточки
@@ -78,13 +78,23 @@ function handleEditFormSubmit(evt) {
 
 function handleFormNewCard(evt) {
   evt.preventDefault();
+
   const newCard = {
     name: cardNameInput.value,
     link: cardUrlInput.value
   };
-  cardsContainer.prepend(createCard(newCard,cloneTemplate, deleteCard, likeCard, openPopupImg));
-  closePopup(popupNewCard);
-  newCardForm.reset();
+
+  pushNewCard(newCard)
+    .then((res) => {
+        cardsContainer.prepend(createCard(res, userId, cloneTemplate, deleteCard, likeCard, 
+        openPopupImg, countLikes))
+    })
+    .then(() => {
+      closePopup(popupNewCard)
+    })
+    .then(() => {
+      newCardForm.reset()
+    });
 };
 
 // открытие картинки в модальном окне
@@ -98,3 +108,14 @@ function openPopupImg(evt){
   imageCaption.textContent = cardTitle.textContent; 
   openPopup(popupImg);
 };
+
+//удаление карточки
+function deleteCard(evt, cardId){
+  const cardDelete = evt.target.closest('.card');
+  deleteCardData(cardId)
+     .then(()=> {
+        cardDelete.remove()
+      });
+};
+
+
