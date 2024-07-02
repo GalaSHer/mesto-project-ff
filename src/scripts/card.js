@@ -13,7 +13,7 @@ export function cloneTemplate(card){
   return cardForm;
 };
 
-export function createCard (card, userId, cloneTemplate, deleteCard, likeCard, removeCardLike, openPopupImg, countLikes){
+export function createCard (card, userId, cloneTemplate, deleteCard, openPopupImg, countLikes, likeCallback){
   const cardElement = cloneTemplate(card);
   const deleteButton = cardElement.querySelector('.card__delete-button');
   const likeButton = cardElement.querySelector('.card__like-button');
@@ -31,11 +31,7 @@ export function createCard (card, userId, cloneTemplate, deleteCard, likeCard, r
   };
 
   likeButton.addEventListener('click', (evt) => {
-    if (likeButton.classList.contains('card__like-button_is-active')) {
-      removeCardLike(evt, card, likeNumber);
-    } else {
-      likeCard(evt, card, likeNumber);
-    }
+    likeCallback(evt, card, likeNumber)
   });
 
   cardImg.addEventListener('click', openPopupImg);

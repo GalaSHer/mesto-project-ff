@@ -1,9 +1,19 @@
 import '../pages/index.css';
 import {cloneTemplate, createCard, handleCardLike, countLikes } from './card.js';
 import { openPopup, closePopup } from './modal.js';
-import { validationConfig, enableValidation, clearValidation} from './validation.js';
+import { enableValidation, clearValidation} from './validation.js';
 import { getUserInfo, getInitialCards, pushUserInfo, pushNewCard, deleteCardData, 
   pushCardLike, deleteCardLike, updateAvatarOnServer } from './api.js';
+
+//конфиг валидации
+const validationConfig = {
+  formSelector: '.popup__form',
+  inputSelector: '.popup__input',
+  submitButtonSelector: '.popup__button',
+  inactiveButtonClass: 'popup__button_disabled',
+  inputErrorClass: 'popup__input_type_error',
+  errorClass: 'popup__error_visible'
+};
 
 // переменные 
 let userId = null;
@@ -67,11 +77,11 @@ Promise.all([getUserInfo(), getInitialCards()])
     profileImage.style.backgroundImage = `url(${userData.avatar})`;
       
     initialCards.forEach((card) => {
-     const cardElement = createCard(card, userId, cloneTemplate, deleteCard, likeCard, 
-      removeCardLike, openPopupImg, countLikes);
+     const cardElement = createCard(card, userId, cloneTemplate, deleteCard, openPopupImg, countLikes, likeCallback);
      cardsContainer.append(cardElement);
     });
   })
+  .catch(err => console.log(err));
 
 //редактирование профиля
 
@@ -85,10 +95,13 @@ function handleEditForm() {
 function handleEditFormSubmit(evt) {
   evt.preventDefault();
   updateBtnText(popupEditSaveBtn, 'Сохранение...');
-  personName.textContent = nameInput.value;
-  personDescription.textContent = jobInput.value;
-  closePopup(popupEdit);
-  pushUserInfo()
+  pushUserInfo(nameInput.value, jobInput.value)
+    .then((updateUserData) => {
+      personName.textContent = updateUserData.name;
+      personDescription.textContent = updateUserData.about;
+      closePopup(popupEdit);
+    })
+    .catch(err => console.log(err))
     .finally(() => {
       updateBtnText(popupEditSaveBtn, 'Сохранить');
     });
@@ -101,14 +114,11 @@ function handleUpdateAvatar(evt) {
   updateBtnText(popupUpdateAvatarSaveBtn, 'Сохранение...');
   updateAvatarOnServer(avatarUrlInput.value)
     .then((res)=> {
-      profileImage.style.backgroundImage = `url(${res.avatar})`
+      profileImage.style.backgroundImage = `url(${res.avatar})`;
+      closePopup(popupUpdateAvatar);
+      popupUpdateAvatarForm.reset();
     })
-    .then(()=> {
-      closePopup(popupUpdateAvatar)
-    })
-    .then(()=>{
-      popupUpdateAvatarForm.reset()
-    })
+    .catch(err => console.log(err))
     .finally(() => {
       updateBtnText(popupUpdateAvatarSaveBtn, 'Сохранить')
     });
@@ -126,15 +136,11 @@ function handleFormNewCard(evt) {
 
   pushNewCard(newCard)
     .then((res) => {
-        cardsContainer.prepend(createCard(res, userId, cloneTemplate, deleteCard, likeCard, 
-        removeCardLike, openPopupImg, countLikes))
+      cardsContainer.prepend(createCard(res, userId, cloneTemplate, deleteCard, openPopupImg, countLikes, likeCallback));
+      closePopup(popupNewCard);
+      newCardForm.reset();
     })
-    .then(() => {
-      closePopup(popupNewCard)
-    })
-    .then(() => {
-      newCardForm.reset()
-    })
+    .catch(err => console.log(err))
     .finally(() => {
       updateBtnText(popupNewCardSaveBtn, 'Сохранить')
     });
@@ -159,29 +165,20 @@ function deleteCard(evt, cardId){
   deleteCardData(cardId)
      .then(()=> {
         cardDelete.remove()
-      });
+      })
+      .catch(err => console.log(err))
 };
 
-//лайк карточки
+//обработка лайка карточки
 
-function likeCard(evt, card, likeNumber){
-  const likeButtonActive = evt.target;
-  pushCardLike(card._id)
-    .then((updatedCard) => {
-      handleCardLike(likeButtonActive);
-      countLikes(updatedCard, likeNumber);
+function likeCallback(evt, card, likeNumber){ 
+  const likeMethod =  evt.target.classList.contains('card__like-button_is-active') ?  deleteCardLike : pushCardLike;
+  likeMethod(card._id) 
+    .then((updatedCard) => { 
+      handleCardLike(evt.target); 
+      countLikes(updatedCard, likeNumber); 
     })
-};
-
-//снять лайк с карточки
-
-function removeCardLike(evt, card, likeNumber) {
-  const likeButtonActive = evt.target;
-  deleteCardLike(card._id)
-    .then((updatedCard) => {
-      handleCardLike(likeButtonActive);
-      countLikes(updatedCard, likeNumber);
-    })
+   .catch(err => console.log(err))
 };
 
 //изменение текста кнопки сохранения

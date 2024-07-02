@@ -17,14 +17,14 @@ export function closePopup(popup){
 
 function closePopupBtn(evt) {
   if (evt.target.classList.contains('popup__close')) {
-    const closestPopup = evt.target.closest('.popup');
+    const closestPopup = evt.currentTarget;
     closePopup(closestPopup);
   };
 };
 
 function closePopupOverlay(evt){
   if (evt.target.classList.contains('popup')) {
-    const closestPopup = document.querySelector('.popup_is-opened');
+    const closestPopup = evt.currentTarget;
     closePopup(closestPopup);
   };
 };

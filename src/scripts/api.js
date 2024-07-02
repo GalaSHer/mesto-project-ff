@@ -8,44 +8,37 @@ const config = {
 
 //обработка ответа
 
-const handleResponseOk = (res) => {
+const handleResponse = (res) => {
   if (res.ok) {
     return res.json()}
   return Promise.reject(`Ошибка: ${res.status}`);
-};
-
-const handleResponseErr = (err) => {
-  console.log(err);
 };
 
 //получение информации о пользователе
 export const getUserInfo = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers})
-    .then(handleResponseOk)
-    .catch(handleResponseErr)
+    .then(handleResponse)
 };
 
 //получение карточек
 export const getInitialCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers})
-    .then(handleResponseOk)
-    .catch(handleResponseErr)  
+    .then(handleResponse)
 };
 
 //отправка данных о профиле пользователя
-export const pushUserInfo = () => {
+export const pushUserInfo = (userName, userDescription) => {
   return fetch(`${config.baseUrl}/users/me`, {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({
-      name: document.querySelector('.profile__title').textContent,
-      about: document.querySelector('.profile__description').textContent
+      name: userName,
+      about: userDescription
     })
   })
-  .then(handleResponseOk)
-  .catch(handleResponseErr)  
+  .then(handleResponse)  
 }; 
 
 //отправка новой карточки
@@ -58,8 +51,7 @@ export const pushNewCard = (newCard) => {
       link: newCard.link,
     })
   })
-  .then(handleResponseOk)
-  .catch(handleResponseErr);  
+  .then(handleResponse)
 }; 
 
 //удаление карточки
@@ -68,8 +60,7 @@ export const deleteCardData = (cardId) => {
     method: 'DELETE',
     headers: config.headers,
   })
-  .then(handleResponseOk)
-  .catch(handleResponseErr)
+  .then(handleResponse)
 };
 
 //отправка данных о лайке карточки
@@ -78,8 +69,7 @@ export const pushCardLike = (cardId) => {
     method: 'PUT',
     headers: config.headers,
   })
-  .then(handleResponseOk)
-  .catch(handleResponseErr)
+  .then(handleResponse)
 };
 
 //удаление данных о лайке карточки
@@ -88,8 +78,7 @@ export const deleteCardLike = (cardId) => {
     method: 'DELETE',
     headers: config.headers,
   })
-  .then(handleResponseOk)
-  .catch(handleResponseErr)
+  .then(handleResponse)
 };
 
 //отправка нового аватара
@@ -101,6 +90,5 @@ export const updateAvatarOnServer = (link) => {
       avatar: link
     })
   })
-  .then(handleResponseOk)
-  .catch(handleResponseErr)
+  .then(handleResponse)
 };
