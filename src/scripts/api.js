@@ -6,16 +6,19 @@ const config = {
   }
 };
 
+//обработка ответа
+
 const handleResponseOk = (res) => {
   if (res.ok) {
-  return res.json()}
-return Promise.reject(`Ошибка: ${res.status}`);
+    return res.json()}
+  return Promise.reject(`Ошибка: ${res.status}`);
 };
 
 const handleResponseErr = (err) => {
   console.log(err);
 };
 
+//получение информации о пользователе
 export const getUserInfo = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers})
@@ -23,6 +26,7 @@ export const getUserInfo = () => {
     .catch(handleResponseErr)
 };
 
+//получение карточек
 export const getInitialCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers})
@@ -30,6 +34,7 @@ export const getInitialCards = () => {
     .catch(handleResponseErr)  
 };
 
+//отправка данных о профиле пользователя
 export const pushUserInfo = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     method: 'PATCH',
@@ -43,6 +48,7 @@ export const pushUserInfo = () => {
   .catch(handleResponseErr)  
 }; 
 
+//отправка новой карточки
 export const pushNewCard = (newCard) => {
   return fetch(`${config.baseUrl}/cards`, {
     method: 'POST',
@@ -56,6 +62,7 @@ export const pushNewCard = (newCard) => {
   .catch(handleResponseErr);  
 }; 
 
+//удаление карточки
 export const deleteCardData = (cardId) => {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: 'DELETE',
@@ -65,6 +72,7 @@ export const deleteCardData = (cardId) => {
   .catch(handleResponseErr)
 };
 
+//отправка данных о лайке карточки
 export const pushCardLike = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'PUT',
@@ -74,6 +82,7 @@ export const pushCardLike = (cardId) => {
   .catch(handleResponseErr)
 };
 
+//удаление данных о лайке карточки
 export const deleteCardLike = (cardId) => {
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: 'DELETE',
@@ -83,6 +92,7 @@ export const deleteCardLike = (cardId) => {
   .catch(handleResponseErr)
 };
 
+//отправка нового аватара
 export const updateAvatarOnServer = (link) => {
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: 'PATCH',

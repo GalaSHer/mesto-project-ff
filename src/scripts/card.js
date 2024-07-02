@@ -42,3 +42,15 @@ export function createCard (card, userId, cloneTemplate, deleteCard, likeCard, r
   countLikes(card, likeNumber);
   return cardElement;
 };
+
+//обработка лайка карточки
+
+export function handleCardLike(button) {
+  button.classList.toggle('card__like-button_is-active');
+};
+
+//счетчик лайков
+
+export function countLikes(card, likeNumber){
+  likeNumber.textContent = card.likes.length;
+};

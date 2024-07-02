@@ -1,15 +1,16 @@
 import '../pages/index.css';
-import {cloneTemplate, createCard } from './card.js';
+import {cloneTemplate, createCard, handleCardLike, countLikes } from './card.js';
 import { openPopup, closePopup } from './modal.js';
 import { validationConfig, enableValidation, clearValidation} from './validation.js';
-import { getUserInfo, getInitialCards, pushUserInfo, pushNewCard, deleteCardData, pushCardLike, deleteCardLike, updateAvatarOnServer } from './api.js';
+import { getUserInfo, getInitialCards, pushUserInfo, pushNewCard, deleteCardData, 
+  pushCardLike, deleteCardLike, updateAvatarOnServer } from './api.js';
 
 // переменные 
 let userId = null;
-let profileImage = document.querySelector('.profile__image');
-const cardsContainer = document.querySelector('.places__list');
+const profileImage = document.querySelector('.profile__image');
 const personName = document.querySelector('.profile__title');
 const personDescription = document.querySelector('.profile__description');
+const cardsContainer = document.querySelector('.places__list');
 
 const popupUpdateAvatar = document.querySelector('.popup_type_update-avatar');
 const popupUpdateAvatarForm = popupUpdateAvatar.querySelector('.popup__form');
@@ -44,8 +45,13 @@ profileImage.addEventListener('click', ()=> {
   openPopup(popupUpdateAvatar)
 });
 
+newCardButton.addEventListener('click',()=> {
+  newCardForm.reset();
+  clearValidation(newCardForm, validationConfig);
+  openPopup(popupNewCard)
+});
+
 popupUpdateAvatarForm.addEventListener('submit', handleUpdateAvatar);
-newCardButton.addEventListener('click', openPopupNewCard);
 popupEditForm.addEventListener('submit', handleEditFormSubmit);
 popupNewCard.addEventListener('submit', handleFormNewCard);
 
@@ -83,9 +89,9 @@ function handleEditFormSubmit(evt) {
   personDescription.textContent = jobInput.value;
   closePopup(popupEdit);
   pushUserInfo()
-  .finally(() => {
-    updateBtnText(popupEditSaveBtn, 'Сохранить');
-  });
+    .finally(() => {
+      updateBtnText(popupEditSaveBtn, 'Сохранить');
+    });
 };
 
 //обновление аватара
@@ -97,28 +103,22 @@ function handleUpdateAvatar(evt) {
     .then((res)=> {
       profileImage.style.backgroundImage = `url(${res.avatar})`
     })
-    .then(()=>{
+    .then(()=> {
       closePopup(popupUpdateAvatar)
     })
     .then(()=>{
       popupUpdateAvatarForm.reset()
     })
     .finally(() => {
-      updateBtnText(popupUpdateAvatarSaveBtn, 'Сохранить');
+      updateBtnText(popupUpdateAvatarSaveBtn, 'Сохранить')
     });
 };
 
 //добавление карточки
 
- function openPopupNewCard() {
-  clearValidation(newCardForm, validationConfig);
-  newCardForm.reset();
-  openPopup(popupNewCard);
-};
-
 function handleFormNewCard(evt) {
   evt.preventDefault();
-  updateBtnText(popupNewCardSaveBtn, 'Сохранение...');
+  updateBtnText(popupNewCardSaveBtn, 'Сохранение...')
   const newCard = {
     name: cardNameInput.value,
     link: cardUrlInput.value
@@ -136,7 +136,7 @@ function handleFormNewCard(evt) {
       newCardForm.reset()
     })
     .finally(() => {
-      updateBtnText(popupNewCardSaveBtn, 'Сохранить');
+      updateBtnText(popupNewCardSaveBtn, 'Сохранить')
     });
 };
 
@@ -168,15 +168,9 @@ function likeCard(evt, card, likeNumber){
   const likeButtonActive = evt.target;
   pushCardLike(card._id)
     .then((updatedCard) => {
-      likeButtonActive.classList.toggle('card__like-button_is-active');
-      countLikes(updatedCard, likeNumber)
+      handleCardLike(likeButtonActive);
+      countLikes(updatedCard, likeNumber);
     })
-};
-
-//счетчик лайков
-
-function countLikes(card, likeNumber){
-  likeNumber.textContent = card.likes.length;
 };
 
 //снять лайк с карточки
@@ -185,8 +179,8 @@ function removeCardLike(evt, card, likeNumber) {
   const likeButtonActive = evt.target;
   deleteCardLike(card._id)
     .then((updatedCard) => {
-      likeButtonActive.classList.toggle('card__like-button_is-active');
-      countLikes(updatedCard, likeNumber)
+      handleCardLike(likeButtonActive);
+      countLikes(updatedCard, likeNumber);
     })
 };
 
