@@ -23,4 +23,5 @@ https://github.com/GalaSHer/mesto-project-ff.git
 3. выполните команду npm install
 4. выполните команду npm run dev
 
+деплой проекта https://galasher.github.io/mesto-project-ff/
 Проект выполнен в рамках курса "Фронтенд-разработчик" от Яндекс.Практикум.
