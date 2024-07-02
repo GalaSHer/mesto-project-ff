@@ -6,26 +6,32 @@ const config = {
   }
 };
 
-const handleResponse = (res) => {
+const handleResponseOk = (res) => {
   if (res.ok) {
   return res.json()}
 return Promise.reject(`Ошибка: ${res.status}`);
 };
 
+const handleResponseErr = (err) => {
+  console.log(err);
+};
+
 export const getUserInfo = () => {
   return fetch(`${config.baseUrl}/users/me`, {
     headers: config.headers})
-    .then(handleResponse)
+    .then(handleResponseOk)
+    .catch(handleResponseErr)
 };
 
 export const getInitialCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers})
-    .then(handleResponse)  
+    .then(handleResponseOk)
+    .catch(handleResponseErr)  
 };
 
 export const pushUserInfo = () => {
-  fetch(`${config.baseUrl}/users/me`, {
+  return fetch(`${config.baseUrl}/users/me`, {
     method: 'PATCH',
     headers: config.headers,
     body: JSON.stringify({
@@ -33,7 +39,8 @@ export const pushUserInfo = () => {
       about: document.querySelector('.profile__description').textContent
     })
   })
-  .then(handleResponse)  
+  .then(handleResponseOk)
+  .catch(handleResponseErr)  
 }; 
 
 export const pushNewCard = (newCard) => {
@@ -45,7 +52,8 @@ export const pushNewCard = (newCard) => {
       link: newCard.link,
     })
   })
-  .then(handleResponse)  
+  .then(handleResponseOk)
+  .catch(handleResponseErr);  
 }; 
 
 export const deleteCardData = (cardId) => {
@@ -53,6 +61,36 @@ export const deleteCardData = (cardId) => {
     method: 'DELETE',
     headers: config.headers,
   })
-  .then(handleResponse);
+  .then(handleResponseOk)
+  .catch(handleResponseErr)
 };
 
+export const pushCardLike = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    method: 'PUT',
+    headers: config.headers,
+  })
+  .then(handleResponseOk)
+  .catch(handleResponseErr)
+};
+
+export const deleteCardLike = (cardId) => {
+  return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
+    method: 'DELETE',
+    headers: config.headers,
+  })
+  .then(handleResponseOk)
+  .catch(handleResponseErr)
+};
+
+export const updateAvatarOnServer = (link) => {
+  return fetch(`${config.baseUrl}/users/me/avatar`, {
+    method: 'PATCH',
+    headers: config.headers,
+    body: JSON.stringify({
+      avatar: link
+    })
+  })
+  .then(handleResponseOk)
+  .catch(handleResponseErr)
+};

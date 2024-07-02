@@ -13,7 +13,7 @@ export function cloneTemplate(card){
   return cardForm;
 };
 
-export function createCard (card, userId, cloneTemplate, deleteCard, likeCard, openPopupImg, countLikes){
+export function createCard (card, userId, cloneTemplate, deleteCard, likeCard, removeCardLike, openPopupImg, countLikes){
   const cardElement = cloneTemplate(card);
   const deleteButton = cardElement.querySelector('.card__delete-button');
   const likeButton = cardElement.querySelector('.card__like-button');
@@ -26,20 +26,19 @@ export function createCard (card, userId, cloneTemplate, deleteCard, likeCard, o
     deleteButton.classList.toggle('card__delete-button-inactive');
   };
 
-  likeButton.addEventListener('click', likeCard);
+  if(card.likes.some(user => user._id === userId)) {
+    likeButton.classList.add('card__like-button_is-active');
+  };
+
+  likeButton.addEventListener('click', (evt) => {
+    if (likeButton.classList.contains('card__like-button_is-active')) {
+      removeCardLike(evt, card, likeNumber);
+    } else {
+      likeCard(evt, card, likeNumber);
+    }
+  });
+
   cardImg.addEventListener('click', openPopupImg);
   countLikes(card, likeNumber);
   return cardElement;
-};
-
-
-//лайк карточки
-export function likeCard(evt){
-  const likeButtonActive = evt.target;
-  likeButtonActive.classList.toggle('card__like-button_is-active');
-};
-
-//счетчик лайков
-export function countLikes(card, likeNumber){
-  likeNumber.textContent = card.likes.length;
 };

@@ -92,4 +92,8 @@ export function clearValidation(formElement, validationConfig) {
   inputList.forEach((input) => {
     input.classList.remove(validationConfig.inputErrorClass);
   });
+
+  const buttonElement = formElement.querySelector(validationConfig.submitButtonSelector);
+  buttonElement.classList.add(validationConfig.inactiveButtonClass);
+  buttonElement.setAttribute('disabled', 'true');
 };
