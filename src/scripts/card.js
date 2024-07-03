@@ -1,3 +1,5 @@
+import { deleteCardData, pushCardLike, deleteCardLike } from './api.js';
+
 // создание карточки
 
 const cardTemplate = document.querySelector('#card-template').content;
@@ -13,7 +15,7 @@ export function cloneTemplate(card){
   return cardForm;
 };
 
-export function createCard (card, userId, cloneTemplate, deleteCard, openPopupImg, countLikes, likeCallback){
+export function createCard (card, userId, cloneTemplate, deleteCard, openPopupImg){
   const cardElement = cloneTemplate(card);
   const deleteButton = cardElement.querySelector('.card__delete-button');
   const likeButton = cardElement.querySelector('.card__like-button');
@@ -30,23 +32,44 @@ export function createCard (card, userId, cloneTemplate, deleteCard, openPopupIm
     likeButton.classList.add('card__like-button_is-active');
   };
 
-  likeButton.addEventListener('click', (evt) => {
-    likeCallback(evt, card, likeNumber)
-  });
+  likeButton.addEventListener('click', (evt) => {likeCallback(evt, card, likeNumber)});
 
   cardImg.addEventListener('click', openPopupImg);
   countLikes(card, likeNumber);
   return cardElement;
 };
 
-//обработка лайка карточки
+//удаление карточки
 
-export function handleCardLike(button) {
+export function deleteCard(evt, cardId){
+  const cardDelete = evt.target.closest('.card');
+  deleteCardData(cardId)
+    .then(()=> {
+      cardDelete.remove()
+    })
+    .catch(err => console.log(err))
+};
+
+//окрашивание лайка карточки
+
+function handleCardLike(button) {
   button.classList.toggle('card__like-button_is-active');
 };
 
 //счетчик лайков
 
-export function countLikes(card, likeNumber){
+function countLikes(card, likeNumber){
   likeNumber.textContent = card.likes.length;
+};
+
+//обработка лайка карточки
+
+function likeCallback(evt, card, likeNumber){ 
+  const likeMethod =  evt.target.classList.contains('card__like-button_is-active') ?  deleteCardLike : pushCardLike;
+  likeMethod(card._id) 
+    .then((updatedCard) => { 
+      handleCardLike(evt.target); 
+      countLikes(updatedCard, likeNumber); 
+    })
+   .catch(err => console.log(err))
 };

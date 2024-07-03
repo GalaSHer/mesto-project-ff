@@ -1,9 +1,8 @@
 import '../pages/index.css';
-import {cloneTemplate, createCard, handleCardLike, countLikes } from './card.js';
+import {cloneTemplate, createCard, deleteCard } from './card.js';
 import { openPopup, closePopup } from './modal.js';
 import { enableValidation, clearValidation} from './validation.js';
-import { getUserInfo, getInitialCards, pushUserInfo, pushNewCard, deleteCardData, 
-  pushCardLike, deleteCardLike, updateAvatarOnServer } from './api.js';
+import { getUserInfo, getInitialCards, pushUserInfo, pushNewCard, updateAvatarOnServer } from './api.js';
 
 //конфиг валидации
 const validationConfig = {
@@ -77,7 +76,7 @@ Promise.all([getUserInfo(), getInitialCards()])
     profileImage.style.backgroundImage = `url(${userData.avatar})`;
       
     initialCards.forEach((card) => {
-     const cardElement = createCard(card, userId, cloneTemplate, deleteCard, openPopupImg, countLikes, likeCallback);
+     const cardElement = createCard(card, userId, cloneTemplate, deleteCard, openPopupImg);
      cardsContainer.append(cardElement);
     });
   })
@@ -96,9 +95,9 @@ function handleEditFormSubmit(evt) {
   evt.preventDefault();
   updateBtnText(popupEditSaveBtn, 'Сохранение...');
   pushUserInfo(nameInput.value, jobInput.value)
-    .then((updateUserData) => {
-      personName.textContent = updateUserData.name;
-      personDescription.textContent = updateUserData.about;
+    .then((updatedUserData) => {
+      personName.textContent = updatedUserData.name;
+      personDescription.textContent = updatedUserData.about;
       closePopup(popupEdit);
     })
     .catch(err => console.log(err))
@@ -136,7 +135,7 @@ function handleFormNewCard(evt) {
 
   pushNewCard(newCard)
     .then((res) => {
-      cardsContainer.prepend(createCard(res, userId, cloneTemplate, deleteCard, openPopupImg, countLikes, likeCallback));
+      cardsContainer.prepend(createCard(res, userId, cloneTemplate, deleteCard, openPopupImg));
       closePopup(popupNewCard);
       newCardForm.reset();
     })
@@ -156,29 +155,6 @@ function openPopupImg(evt){
   image.alt = cardImage.alt; 
   imageCaption.textContent = cardTitle.textContent; 
   openPopup(popupImg);
-};
-
-//удаление карточки
-
-function deleteCard(evt, cardId){
-  const cardDelete = evt.target.closest('.card');
-  deleteCardData(cardId)
-     .then(()=> {
-        cardDelete.remove()
-      })
-      .catch(err => console.log(err))
-};
-
-//обработка лайка карточки
-
-function likeCallback(evt, card, likeNumber){ 
-  const likeMethod =  evt.target.classList.contains('card__like-button_is-active') ?  deleteCardLike : pushCardLike;
-  likeMethod(card._id) 
-    .then((updatedCard) => { 
-      handleCardLike(evt.target); 
-      countLikes(updatedCard, likeNumber); 
-    })
-   .catch(err => console.log(err))
 };
 
 //изменение текста кнопки сохранения
