@@ -1,8 +1,8 @@
 import '../pages/index.css';
-import {cloneTemplate, createCard, deleteCard } from './card.js';
+import {cloneTemplate, createCard, handleDeleteCardClick } from './card.js';
 import { openPopup, closePopup } from './modal.js';
 import { enableValidation, clearValidation} from './validation.js';
-import { getUserInfo, getInitialCards, pushUserInfo, pushNewCard, updateAvatarOnServer } from './api.js';
+import { getUserInfo, getInitialCards, pushUserInfo, pushNewCard, updateAvatarOnServer, deleteCardData } from './api.js';
 
 //конфиг валидации
 const validationConfig = {
@@ -13,6 +13,9 @@ const validationConfig = {
   inputErrorClass: 'popup__input_type_error',
   errorClass: 'popup__error_visible'
 };
+
+// заготовка обработчика сабмита формы подтверждения
+let submitFormConfirm = () => {};
 
 // переменные 
 let userId = null;
@@ -44,6 +47,9 @@ const popupImg = document.querySelector('.popup_type_image');
 const image = popupImg.querySelector('.popup__image');
 const imageCaption = popupImg.querySelector('.popup__caption');
 
+const popupConfirmDeleteCard = document.querySelector('.popup_type_delete-card');
+const cardDeleteSubmitBtn = popupConfirmDeleteCard.querySelector('.popup__button');
+
 //слушатели событий 
 
 editButton.addEventListener('click', handleEditForm);
@@ -63,6 +69,10 @@ newCardButton.addEventListener('click',()=> {
 popupUpdateAvatarForm.addEventListener('submit', handleUpdateAvatar);
 popupEditForm.addEventListener('submit', handleEditFormSubmit);
 popupNewCard.addEventListener('submit', handleFormNewCard);
+popupConfirmDeleteCard.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+  submitFormConfirm();
+});
 
 // отображение начальных данных на странице
 
@@ -76,7 +86,7 @@ Promise.all([getUserInfo(), getInitialCards()])
     profileImage.style.backgroundImage = `url(${userData.avatar})`;
       
     initialCards.forEach((card) => {
-     const cardElement = createCard(card, userId, cloneTemplate, deleteCard, openPopupImg);
+     const cardElement = createCard(card, userId, cloneTemplate, handleDeleteCard, openPopupImg);
      cardsContainer.append(cardElement);
     });
   })
@@ -135,7 +145,7 @@ function handleFormNewCard(evt) {
 
   pushNewCard(newCard)
     .then((res) => {
-      cardsContainer.prepend(createCard(res, userId, cloneTemplate, deleteCard, openPopupImg));
+      cardsContainer.prepend(createCard(res, userId, cloneTemplate, handleDeleteCard, openPopupImg));
       closePopup(popupNewCard);
       newCardForm.reset();
     })
@@ -161,4 +171,25 @@ function openPopupImg(evt){
 
 function updateBtnText (button, text) {
   button.textContent = text
+};
+
+//удаление карточки (обработка сабмита формы удаления карточки)
+
+const handleDeleteCard = (cardId, cardElement) => {
+  submitFormConfirm = () => {
+  cardDeleteSubmitBtn.textContent = 'Удаление...';
+  deleteCardData(cardId)
+    .then(() => {
+      handleDeleteCardClick(cardElement);
+      closePopup(popupConfirmDeleteCard);
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      cardDeleteSubmitBtn.textContent = 'Да';
+    })
+  };
+
+  openPopup(popupConfirmDeleteCard);
 };

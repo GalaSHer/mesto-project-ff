@@ -15,7 +15,7 @@ export function cloneTemplate(card){
   return cardForm;
 };
 
-export function createCard (card, userId, cloneTemplate, deleteCard, openPopupImg){
+export function createCard (card, userId, cloneTemplate, handleDeleteCard, openPopupImg){
   const cardElement = cloneTemplate(card);
   const deleteButton = cardElement.querySelector('.card__delete-button');
   const likeButton = cardElement.querySelector('.card__like-button');
@@ -23,7 +23,7 @@ export function createCard (card, userId, cloneTemplate, deleteCard, openPopupIm
   const likeNumber = cardElement.querySelector('.card__like-counter');
     
   if(userId === card.owner._id){
-    deleteButton.addEventListener('click', (evt)=> {deleteCard(evt, card._id)});
+    deleteButton.addEventListener('click', ()=> {handleDeleteCard(card._id, cardElement)});
   } else {
     deleteButton.classList.toggle('card__delete-button-inactive');
   };
@@ -39,15 +39,10 @@ export function createCard (card, userId, cloneTemplate, deleteCard, openPopupIm
   return cardElement;
 };
 
-//удаление карточки
+//удаление карточки из верстки
 
-export function deleteCard(evt, cardId){
-  const cardDelete = evt.target.closest('.card');
-  deleteCardData(cardId)
-    .then(()=> {
-      cardDelete.remove()
-    })
-    .catch(err => console.log(err))
+export const handleDeleteCardClick = (cardElement) => {
+  cardElement.remove();
 };
 
 //окрашивание лайка карточки

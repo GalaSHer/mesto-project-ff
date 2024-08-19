@@ -21,3 +21,7 @@
 .popup_type_update-avatar .popup__content {
   min-height: 204px;
 }
+
+.popup_type_delete-card .popup__content {
+  min-height: 204px;
+}
